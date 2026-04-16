@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Advanced Invoice System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; background:#f4f4f4 }
+    .box { background:white; padding:20px; max-width:900px; margin:auto }
+    input, button { margin:5px; padding:8px }
+    table { width:100%; margin-top:10px; border-collapse: collapse }
+    th, td { border:1px solid #ddd; padding:8px }
+  </style>
+</head>
+<body>
+
+<div class="box">
+<h2>🚀 Advanced Invoice System</h2>
+
+Invoice No: <input id="invNo" readonly>
+Date: <input id="date" readonly><br>
+Client: <input id="client"><br>
+
+Item: <input id="item">
+Price: <input id="price" type="number">
+Qty: <input id="qty" type="number" value="1">
+<button onclick="addItem()">Add</button>
+
+<table>
+<thead>
+<tr><th>Item</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>X</th></tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+<h3>Total: <span id="total">0</span></h3>
+
+<button onclick="downloadPDF()">Download PDF</button>
+<button onclick="saveInvoice()">Save Invoice</button>
+<button onclick="newInvoice()">New</button>
+
+<h3>📚 Invoice History</h3>
+<ul id="history"></ul>
+</div>
+
+<script>
+const { jsPDF } = window.jspdf;
+
+let items = [];
+let invoiceNumber = localStorage.getItem("invNo") || 1001;
+let history = JSON.parse(localStorage.getItem("history")) || [];
+
+document.getElementById("invNo").value = "INV-" + invoiceNumber;
+document.getElementById("date").value = new Date().toLocaleDateString();
+
+function addItem(){
+  let item = document.getElementById("item").value;
+  let price = parseFloat(document.getElementById("price").value);
+  let qty = parseInt(document.getElementById("qty").value);
+
+  if(!item || isNaN(price)) return alert("Fill item + price");
+
+  let subtotal = price * qty;
+  items.push({item, price, qty, subtotal});
+  render();
+}
+
+function render(){
+  let tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+  let total = 0;
+
+  items.forEach((p,i)=>{
+    let row = tbody.insertRow();
+    row.insertCell(0).innerText = p.item;
+    row.insertCell(1).innerText = p.price;
+    row.insertCell(2).innerText = p.qty;
+    row.insertCell(3).innerText = p.subtotal;
+
+    let btn = document.createElement("button");
+    btn.innerText = "X";
+    btn.onclick = ()=>{ items.splice(i,1); render(); };
+    row.insertCell(4).appendChild(btn);
+
+    total += p.subtotal;
+  });
+
+  document.getElementById("total").innerText = total;
+}
+
+function downloadPDF(){
+  let doc = new jsPDF();
+  let client = document.getElementById("client").value;
+
+  doc.text("INVOICE", 10, 10);
+  doc.text("Client: " + client, 10, 20);
+
+  let y = 30;
+  items.forEach(p=>{
+    doc.text(`${p.item} - ${p.qty} x ${p.price} = ${p.subtotal}`,10,y);
+    y += 10;
+  });
+
+  doc.text("Total: " + document.getElementById("total").innerText, 10, y+10);
+
+  doc.save("invoice.pdf");
+}
+
+function saveInvoice(){
+  let client = document.getElementById("client").value;
+
+  let invoice = {
+    number: "INV-" + invoiceNumber,
+    client,
+    items,
+    total: document.getElementById("total").innerText
+  };
+
+  history.push(invoice);
+  localStorage.setItem("history", JSON.stringify(history));
+
+  invoiceNumber++;
+  localStorage.setItem("invNo", invoiceNumber);
+
+  loadHistory();
+  alert("Saved!");
+}
+
+function loadHistory(){
+  let list = document.getElementById("history");
+  list.innerHTML = "";
+
+  history.forEach(inv=>{
+    let li = document.createElement("li");
+    li.innerText = `${inv.number} - ${inv.client} - ${inv.total}`;
+    list.appendChild(li);
+  });
+}
+
+function newInvoice(){
+  items = [];
+  render();
+}
+
+loadHistory();
+</script>
+
+</body>
+</html>
