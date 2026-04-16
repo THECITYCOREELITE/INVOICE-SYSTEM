@@ -1,171 +1,68 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Invoice System</title>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
-  <style>
-    body { font-family: Arial; padding: 20px; background:#f4f4f4 }
-    .box { background:white; padding:20px; max-width:900px; margin:auto }
-    input, button { margin:5px; padding:8px }
-    table { width:100%; margin-top:10px; border-collapse: collapse }
-    th, td { border:1px solid #ddd; padding:8px }
-  </style>
-</head>
-
-<body>
-
-<div class="box">
-
-<!-- HEADER START -->
-<div style="display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
-
-  <div style="width:25%;">
-    <img src="logo.png" style="width:90px; height:auto;">
-  </div>
-
-  <div style="width:50%; text-align:center;">
-    <h2 style="margin:0;">THE CITY CORE ELITE</h2>
-    <p style="margin:0;">INVOICE SYSTEM</p>
-  </div>
-
-  <div style="width:25%; text-align:right;">
-    <small>Powered by System</small>
-  </div>
-
-</div>
-<!-- HEADER END -->
-
-<h3>🚀 Advanced Invoice System</h3>
-
-Invoice No: <input id="invNo" readonly>
-Date: <input id="date" readonly><br>
-Client: <input id="client"><br>
-
-Item: <input id="item">
-Price: <input id="price" type="number">
-Qty: <input id="qty" type="number" value="1">
-<button onclick="addItem()">Add</button>
-
-<table>
-<thead>
-<tr><th>Item</th><th>Price</th><th>Qty</th><th>Subtotal</th><th>X</th></tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-
-<h3>Total: <span id="total">0</span></h3>
-
-<button onclick="downloadPDF()">Download PDF</button>
-<button onclick="saveInvoice()">Save Invoice</button>
-<button onclick="newInvoice()">New</button>
-
-<h3>📚 Invoice History</h3>
-<ul id="history"></ul>
-
-</div>
-
-<script>
-const { jsPDF } = window.jspdf;
-
-let items = [];
-let invoiceNumber = localStorage.getItem("invNo") || 1001;
-let history = JSON.parse(localStorage.getItem("history")) || [];
-
-document.getElementById("invNo").value = "INV-" + invoiceNumber;
-document.getElementById("date").value = new Date().toLocaleDateString();
-
-function addItem(){
-  let item = document.getElementById("item").value;
-  let price = parseFloat(document.getElementById("price").value) || 0;
-  let qty = parseInt(document.getElementById("qty").value) || 1;
-
-  if(!item || isNaN(price)) return alert("Fill item + price");
-
-  let subtotal = price * qty;
-  items.push({item, price, qty, subtotal});
-  render();
-}
-
-function render(){
-  let tbody = document.getElementById("tbody");
-  tbody.innerHTML = "";
-  let total = 0;
-
-  items.forEach((p,i)=>{
-    let row = tbody.insertRow();
-    row.insertCell(0).innerText = p.item;
-    row.insertCell(1).innerText = p.price;
-    row.insertCell(2).innerText = p.qty;
-    row.insertCell(3).innerText = p.subtotal;
-
-    let btn = document.createElement("button");
-    btn.innerText = "X";
-    btn.onclick = ()=>{ items.splice(i,1); render(); };
-    row.insertCell(4).appendChild(btn);
-
-    total += p.subtotal;
-  });
-
-  document.getElementById("total").innerText = total;
-}
-
 function downloadPDF(){
   let doc = new jsPDF();
   let client = document.getElementById("client").value;
 
-  doc.text("INVOICE", 10, 10);
-  doc.text("Client: " + client, 10, 20);
+  let logo = new Image();
+  logo.src = "logo.png";
 
-  let y = 30;
-  items.forEach(p=>{
-    doc.text(`${p.item} - ${p.qty} x ${p.price} = ${p.subtotal}`,10,y);
+  logo.onload = function(){
+
+    // 🔥 LOGO
+    doc.addImage(logo, "PNG", 10, 5, 25, 20);
+
+    // 🔥 BUSINESS NAME (TIMES BOLD)
+    doc.setFont("times", "bold");
+    doc.setFontSize(16);
+    doc.text("THE CITY CORE ELITE", 105, 12, null, null, "center");
+
+    // 🔥 CONTACTS
+    doc.setFont("times", "normal");
+    doc.setFontSize(10);
+    doc.text("Phone: 0769818442", 105, 18, null, null, "center");
+    doc.text("www.thecitycoreelite.com", 105, 23, null, null, "center");
+    doc.text("Email: kietmwash@gmail.com", 105, 28, null, null, "center");
+
+    // 🔥 LINE
+    doc.line(10, 35, 200, 35);
+
+    // 🔥 INVOICE TITLE
+    doc.setFont("times", "bold");
+    doc.setFontSize(14);
+    doc.text("INVOICE", 10, 45);
+
+    // 🔥 DETAILS
+    doc.setFont("times", "normal");
+    doc.setFontSize(11);
+    doc.text("Invoice No: " + document.getElementById("invNo").value, 10, 55);
+    doc.text("Date: " + document.getElementById("date").value, 10, 62);
+    doc.text("Client: " + client, 10, 69);
+
+    // 🔥 TABLE HEADER
+    let y = 80;
+    doc.setFont("times", "bold");
+    doc.text("Item", 10, y);
+    doc.text("Price", 110, y, null, null, "right");
+    doc.text("Qty", 140, y, null, null, "right");
+    doc.text("Subtotal", 190, y, null, null, "right");
+
+    doc.line(10, y+2, 200, y+2);
+
+    // 🔥 ITEMS
     y += 10;
-  });
+    doc.setFont("times", "normal");
 
-  doc.text("Total: " + document.getElementById("total").innerText, 10, y+10);
-  doc.save("invoice.pdf");
-}
+    items.forEach(p=>{
+      doc.text(p.item, 10, y);
+      doc.text(String(p.price), 110, y, null, null, "right");
+      doc.text(String(p.qty), 140, y, null, null, "right");
+      doc.text(String(p.subtotal), 190, y, null, null, "right");
+      y += 10;
+    });
 
-function saveInvoice(){
-  let client = document.getElementById("client").value;
+    // 🔥 TOTAL
+    doc.setFont("times", "bold");
+    doc.text("Total: " + document.getElementById("total").innerText, 190, y+10, null, null, "right");
 
-  let invoice = {
-    number: "INV-" + invoiceNumber,
-    client,
-    items,
-    total: document.getElementById("total").innerText
+    doc.save("invoice.pdf");
   };
-
-  history.push(invoice);
-  localStorage.setItem("history", JSON.stringify(history));
-
-  invoiceNumber++;
-  localStorage.setItem("invNo", invoiceNumber);
-
-  loadHistory();
-  alert("Saved!");
 }
-
-function loadHistory(){
-  let list = document.getElementById("history");
-  list.innerHTML = "";
-
-  history.forEach(inv=>{
-    let li = document.createElement("li");
-    li.innerText = `${inv.number} - ${inv.client} - ${inv.total}`;
-    list.appendChild(li);
-  });
-}
-
-function newInvoice(){
-  items = [];
-  render();
-}
-
-loadHistory();
-</script>
-
-</body>
-</html>
