@@ -3,42 +3,41 @@ function downloadPDF(){
   let client = document.getElementById("client").value;
 
   let logo = new Image();
-  logo.src = "logo.png";
+  logo.src = "./logo.png";
 
-  logo.onload = function(){
+  // 👉 WAIT A BIT, THEN GENERATE PDF (no onload issues)
+  setTimeout(function(){
 
-    // 🔥 LOGO
-    doc.addImage(logo, "PNG", 10, 5, 25, 20);
+    try {
+      doc.addImage(logo, "PNG", 10, 5, 25, 20);
+    } catch(e) {
+      // if logo fails, continue anyway
+    }
 
-    // 🔥 BUSINESS NAME
     doc.setFont("times", "bold");
     doc.setFontSize(16);
     doc.text("THE CITY CORE ELITE", 105, 12, null, null, "center");
 
-    // 🔥 CONTACTS
     doc.setFont("times", "normal");
     doc.setFontSize(10);
     doc.text("Phone: 0769818442", 105, 18, null, null, "center");
     doc.text("www.thecitycoreelite.com", 105, 23, null, null, "center");
     doc.text("Email: kietmwash@gmail.com", 105, 28, null, null, "center");
 
-    // 🔥 LINE
     doc.line(10, 35, 200, 35);
 
-    // 🔥 INVOICE TITLE
-    doc.setFont("times", "bold");
     doc.setFontSize(14);
+    doc.setFont("times", "bold");
     doc.text("INVOICE", 10, 45);
 
-    // 🔥 DETAILS
-    doc.setFont("times", "normal");
     doc.setFontSize(11);
+    doc.setFont("times", "normal");
     doc.text("Invoice No: " + document.getElementById("invNo").value, 10, 55);
     doc.text("Date: " + document.getElementById("date").value, 10, 62);
     doc.text("Client: " + client, 10, 69);
 
-    // 🔥 TABLE HEADER
     let y = 80;
+
     doc.setFont("times", "bold");
     doc.text("Item", 10, y);
     doc.text("Price", 110, y, null, null, "right");
@@ -47,11 +46,11 @@ function downloadPDF(){
 
     doc.line(10, y + 2, 200, y + 2);
 
-    // 🔥 ITEMS
     y += 10;
+
     doc.setFont("times", "normal");
 
-    items.forEach(p => {
+    items.forEach(p=>{
       doc.text(p.item, 10, y);
       doc.text(String(p.price), 110, y, null, null, "right");
       doc.text(String(p.qty), 140, y, null, null, "right");
@@ -59,17 +58,10 @@ function downloadPDF(){
       y += 10;
     });
 
-    // 🔥 TOTAL
     doc.setFont("times", "bold");
-    doc.text(
-      "Total: " + document.getElementById("total").innerText,
-      190,
-      y + 10,
-      null,
-      null,
-      "right"
-    );
+    doc.text("Total: " + document.getElementById("total").innerText, 190, y+10, null, null, "right");
 
     doc.save("invoice.pdf");
-  };
+
+  }, 300);
 }
