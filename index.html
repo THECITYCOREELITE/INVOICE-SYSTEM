@@ -54,8 +54,8 @@ document.getElementById("date").value = new Date().toLocaleDateString();
 
 function addItem(){
   let item = document.getElementById("item").value;
-  let price = parseFloat(document.getElementById("price").value);
-  let qty = parseInt(document.getElementById("qty").value);
+  let price = parseFloat(document.getElementById("price").value) || 0;
+let qty = parseInt(document.getElementById("qty").value) || 1;
 
   if(!item || isNaN(price)) return alert("Fill item + price");
 
