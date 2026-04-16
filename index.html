@@ -10,7 +10,7 @@ function downloadPDF(){
     // 🔥 LOGO
     doc.addImage(logo, "PNG", 10, 5, 25, 20);
 
-    // 🔥 BUSINESS NAME (TIMES BOLD)
+    // 🔥 BUSINESS NAME
     doc.setFont("times", "bold");
     doc.setFontSize(16);
     doc.text("THE CITY CORE ELITE", 105, 12, null, null, "center");
@@ -45,13 +45,13 @@ function downloadPDF(){
     doc.text("Qty", 140, y, null, null, "right");
     doc.text("Subtotal", 190, y, null, null, "right");
 
-    doc.line(10, y+2, 200, y+2);
+    doc.line(10, y + 2, 200, y + 2);
 
     // 🔥 ITEMS
     y += 10;
     doc.setFont("times", "normal");
 
-    items.forEach(p=>{
+    items.forEach(p => {
       doc.text(p.item, 10, y);
       doc.text(String(p.price), 110, y, null, null, "right");
       doc.text(String(p.qty), 140, y, null, null, "right");
@@ -61,7 +61,14 @@ function downloadPDF(){
 
     // 🔥 TOTAL
     doc.setFont("times", "bold");
-    doc.text("Total: " + document.getElementById("total").innerText, 190, y+10, null, null, "right");
+    doc.text(
+      "Total: " + document.getElementById("total").innerText,
+      190,
+      y + 10,
+      null,
+      null,
+      "right"
+    );
 
     doc.save("invoice.pdf");
   };
