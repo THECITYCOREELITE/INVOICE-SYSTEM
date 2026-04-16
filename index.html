@@ -1,24 +1,10 @@
 <!DOCTYPE html>
-<div style="display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+<html>
+<head>
+  <title>Invoice System</title>
 
-  <!-- LEFT: LOGO -->
-  <div style="width:25%;">
-    <img src="logo.png" style="width:90px; height:auto;">
-  </div>
-
-  <!-- CENTER: BUSINESS NAME -->
-  <div style="width:50%; text-align:center;">
-    <h2 style="margin:0;">THE CITY CORE ELITE</h2>
-    <p style="margin:0;">INVOICE SYSTEM</p>
-  </div>
-
-  <!-- RIGHT: EMPTY -->
-  <div style="width:25%; text-align:right;">
-    <small>Powered by System</small>
-  </div>
-
-</div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     body { font-family: Arial; padding: 20px; background:#f4f4f4 }
     .box { background:white; padding:20px; max-width:900px; margin:auto }
@@ -27,10 +13,31 @@
     th, td { border:1px solid #ddd; padding:8px }
   </style>
 </head>
+
 <body>
 
 <div class="box">
-<h2>🚀 Advanced Invoice System</h2>
+
+<!-- HEADER START -->
+<div style="display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid #000; padding-bottom:10px; margin-bottom:20px;">
+
+  <div style="width:25%;">
+    <img src="logo.png" style="width:90px; height:auto;">
+  </div>
+
+  <div style="width:50%; text-align:center;">
+    <h2 style="margin:0;">THE CITY CORE ELITE</h2>
+    <p style="margin:0;">INVOICE SYSTEM</p>
+  </div>
+
+  <div style="width:25%; text-align:right;">
+    <small>Powered by System</small>
+  </div>
+
+</div>
+<!-- HEADER END -->
+
+<h3>🚀 Advanced Invoice System</h3>
 
 Invoice No: <input id="invNo" readonly>
 Date: <input id="date" readonly><br>
@@ -56,6 +63,7 @@ Qty: <input id="qty" type="number" value="1">
 
 <h3>📚 Invoice History</h3>
 <ul id="history"></ul>
+
 </div>
 
 <script>
@@ -71,7 +79,7 @@ document.getElementById("date").value = new Date().toLocaleDateString();
 function addItem(){
   let item = document.getElementById("item").value;
   let price = parseFloat(document.getElementById("price").value) || 0;
-let qty = parseInt(document.getElementById("qty").value) || 1;
+  let qty = parseInt(document.getElementById("qty").value) || 1;
 
   if(!item || isNaN(price)) return alert("Fill item + price");
 
@@ -117,7 +125,6 @@ function downloadPDF(){
   });
 
   doc.text("Total: " + document.getElementById("total").innerText, 10, y+10);
-
   doc.save("invoice.pdf");
 }
 
